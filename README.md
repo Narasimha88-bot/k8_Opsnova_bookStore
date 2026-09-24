@@ -20,7 +20,7 @@ specification for the full rationale.
 | Stage | Description | Status |
 |---|---|---|
 | **1** | Skeleton + `standalone` `catalog-service` | ✅ **Done** |
-| **2** | Thymeleaf UI (book list, detail, pod/version/profile footer) | ✅ **Done** |
+| **2** | Thymeleaf UI (tools catalog, detail, pod/version/profile footer) | ✅ **Done** |
 | **3** | `order-service` + inter-service calls (clean 503 when catalog down) | ✅ **Done** |
 | **4** | PostgreSQL + `external-db` profile (persistent, `docker-compose.yml`) | ✅ **Done** |
 | **5** | Security + JWT + Redis (`full` profile, login page) | ✅ **Done** |
