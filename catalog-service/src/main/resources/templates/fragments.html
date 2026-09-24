@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!-- Shared fragments: head, header (OpsNova nova logo) and the pod footer. -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="|${title} · OpsNova|">OpsNova</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;450;500;600&display=swap">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon"
+          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%237c3aed'/%3E%3Cpath d='M16 6 L18 14 L26 16 L18 18 L16 26 L14 18 L6 16 L14 14 Z' fill='white'/%3E%3C/svg%3E">
+</head>
+
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header th:fragment="header" class="site-header">
+    <div class="container header-inner">
+        <a class="brand" th:href="@{/books}">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" width="34" height="34" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="novaG" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#8b5cf6"/>
+                            <stop offset="1" stop-color="#ec4899"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="32" height="32" rx="9" fill="url(#novaG)"/>
+                    <path d="M16 5.5 L18.5 13.5 L26.5 16 L18.5 18.5 L16 26.5 L13.5 18.5 L5.5 16 L13.5 13.5 Z" fill="#fff"/>
+                    <circle cx="23.6" cy="8.6" r="1.5" fill="#fff" opacity=".85"/>
+                </svg>
+            </span>
+            <span class="brand-text">
+                <strong>OpsNova</strong>
+                <em>Tools</em>
+            </span>
+        </a>
+        <nav class="nav" aria-label="Primary">
+            <a class="nav-link is-active" th:href="@{/books}">Catalog</a>
+        </nav>
+        <div class="header-meta">
+            <a th:if="${securityEnabled and currentUser == null}" class="nav-link" th:href="${loginUrl}">Log in</a>
+            <span th:if="${securityEnabled and currentUser != null}" class="userchip">
+                <span class="userchip-dot" aria-hidden="true"></span>
+                <span th:text="${currentUser}">user</span>
+            </span>
+            <a th:if="${securityEnabled and currentUser != null}" class="nav-link" th:href="${logoutUrl}">Log out</a>
+            <span class="badge badge-version" th:text="|v${@podInfo.version}|">v1.0.0</span>
+            <span class="badge badge-profile" th:text="${@podInfo.activeProfile}">standalone</span>
+        </div>
+    </div>
+</header>
+
+<!-- ===================== FOOTER: pod / version / profile ===================== -->
+<footer th:fragment="footer" class="pod-footer">
+    <div class="container pod-footer-inner">
+        <span class="pod-served">Served by</span>
+        <dl class="pod-grid">
+            <div class="pod-item pod-item--pod">
+                <dt>Pod</dt>
+                <dd th:text="${@podInfo.podName}">unknown</dd>
+            </div>
+            <div class="pod-item">
+                <dt>Version</dt>
+                <dd th:text="${@podInfo.version}">1.0.0</dd>
+            </div>
+            <div class="pod-item">
+                <dt>Profile</dt>
+                <dd th:text="${@podInfo.activeProfile}">standalone</dd>
+            </div>
+            <div class="pod-item">
+                <dt>Node</dt>
+                <dd th:text="${@podInfo.nodeName}">unknown</dd>
+            </div>
+        </dl>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:style="|--accent: ${@podInfo.accent};|">
+<head th:replace="~{fragments :: head('Orders')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+
+<main class="container page">
+    <div class="page-head">
+        <div>
+            <h1 class="page-title">Orders</h1>
+            <p class="page-sub">Placed against catalog-service over the network.</p>
+        </div>
+    </div>
+
+    <!-- flash banner (success / error), survives the redirect after placing -->
+    <div th:if="${flash}" class="flash"
+         th:classappend="${flashType == 'ok'} ? 'flash-ok' : 'flash-error'"
+         th:text="${flash}">status</div>
+
+    <!-- place-order form -->
+    <form class="place-card" method="post" th:action="@{/orders}">
+        <h2 class="place-title">Place an order</h2>
+        <div class="place-row">
+            <label>
+                <span>Tool ID</span>
+                <input type="number" name="bookId" min="1" th:value="${prefillBookId}" required autofocus>
+            </label>
+            <label>
+                <span>Quantity</span>
+                <input type="number" name="quantity" min="1" value="1" required>
+            </label>
+            <label>
+                <span>User</span>
+                <input type="text" name="username" value="user" autocomplete="off">
+            </label>
+            <button type="submit" class="btn btn-primary">Place order</button>
+        </div>
+        <p class="place-hint">Catalog holds tool IDs 1–10. Stock is verified with catalog-service before the order is written.</p>
+    </form>
+
+    <!-- order history -->
+    <div class="table-wrap" th:if="${!orders.isEmpty()}">
+        <table class="orders-table">
+            <thead>
+            <tr>
+                <th>Order</th>
+                <th>Tool</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>User</th>
+                <th>Placed</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td class="mono" th:text="|#${order.id}|">#1</td>
+                <td class="tool-name" th:text="${order.bookTitle != null ? order.bookTitle : 'Tool #' + order.bookId}">Docker</td>
+                <td th:text="${order.quantity}">1</td>
+                <td class="mono" th:text="|₹${#numbers.formatInteger(order.totalPrice,1,'COMMA')}|">₹0</td>
+                <td>
+                    <span class="status"
+                          th:classappend="${#strings.toLowerCase(order.status)}"
+                          th:text="${order.status}">CONFIRMED</span>
+                </td>
+                <td th:text="${order.username}">user</td>
+                <td class="mono muted"
+                    th:text="${#strings.replace(#strings.substring(order.createdAt, 0, 19), 'T', ' ')}">2026-01-01 00:00:00</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="empty-state" th:if="${orders.isEmpty()}">
+        <div class="empty-mark" aria-hidden="true">🧾</div>
+        <p>No orders yet. Place one above — order-service will call catalog to verify stock.</p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

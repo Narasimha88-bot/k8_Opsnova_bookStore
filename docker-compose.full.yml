@@ -1,0 +1,83 @@
+# ---------------------------------------------------------------------------
+# OpsNova - local verification of the `full` profile (Stage 5):
+# Postgres + Redis + Security + JWT.
+#
+#   docker compose -f docker-compose.full.yml up --build
+#   docker compose -f docker-compose.full.yml down
+#
+# Bring the external-db stack down first (docker compose down) so ports are free.
+#
+# Redis has NO volume on purpose - losing its data on restart is the lesson, and
+# with it only token revocation is lost (login + ordering keep working).
+# JWT_SIGNING_KEY is a demo value here; in class it is a Kubernetes Secret.
+# ---------------------------------------------------------------------------
+services:
+
+  postgres:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_USER: opsnova
+      POSTGRES_PASSWORD: opsnova_secret
+      POSTGRES_DB: opsnova
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opsnova -d opsnova"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  redis:
+    image: redis:7.4-alpine
+    # No volume: ephemeral by design. Kill it and the revocation set is gone.
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  catalog-service:
+    build: ./catalog-service
+    image: catalog-service:1.0.0
+    environment:
+      SPRING_PROFILES_ACTIVE: full
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/opsnova
+      SPRING_DATASOURCE_USERNAME: opsnova
+      SPRING_DATASOURCE_PASSWORD: opsnova_secret
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: "6379"
+      JWT_SIGNING_KEY: opsnova-teaching-jwt-signing-key-change-me-please
+      APP_ORDER_URL: http://localhost:8081/orders
+    ports:
+      - "8080:8080"
+    # Only Postgres is required to start - Redis is optional (down != fail).
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  order-service:
+    build: ./order-service
+    image: order-service:1.0.0
+    environment:
+      SPRING_PROFILES_ACTIVE: full
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/opsnova
+      SPRING_DATASOURCE_USERNAME: opsnova
+      SPRING_DATASOURCE_PASSWORD: opsnova_secret
+      JWT_SIGNING_KEY: opsnova-teaching-jwt-signing-key-change-me-please
+      CATALOG_SERVICE_URL: http://catalog-service:8080
+      APP_LOGIN_URL: http://localhost:8080/login
+      APP_LOGOUT_URL: http://localhost:8080/logout
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+
+volumes:
+  pgdata:

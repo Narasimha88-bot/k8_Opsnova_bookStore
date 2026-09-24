@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# Base configuration - shared by every profile. Mirrors catalog-service.
+# Default profile is `standalone` so the image starts with zero env vars.
+# ---------------------------------------------------------------------------
+spring:
+  application:
+    name: order-service
+  profiles:
+    active: standalone
+
+app:
+  version: "@project.version@"
+  ui:
+    # OpsNova "Nova" brand accent (violet) - unified with catalog-service.
+    accent: "#7c3aed"
+
+# Target catalog-service. NEVER hardcoded: the env var CATALOG_SERVICE_URL
+# overrides this, defaulting to the Kubernetes ClusterIP DNS name. Proving that
+# name resolves is the whole point of the inter-service call.
+catalog:
+  service:
+    url: ${CATALOG_SERVICE_URL:http://catalog-service:8080}
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      group:
+        # Liveness must NOT depend on anything external.
+        liveness:
+          include: livenessState
+        # Readiness checks THIS service's own datasource only - never catalog.
+        # A catalog outage must not make order-service unready.
+        readiness:
+          include: readinessState,db

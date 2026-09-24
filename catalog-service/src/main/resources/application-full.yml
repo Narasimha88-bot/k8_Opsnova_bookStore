@@ -1,0 +1,36 @@
+# ---------------------------------------------------------------------------
+# full profile
+#   - PostgreSQL (SPRING_DATASOURCE_*) + Redis + Spring Security + JWT.
+#   - All configuration externalised. Secrets (JWT_SIGNING_KEY, DB password)
+#     have NO hardcoded fallbacks - the app fails to start without them.
+#   - Redis is OPTIONAL at runtime: if it is down, login and ordering keep
+#     working and readiness stays UP (token revocation degrades gracefully).
+# ---------------------------------------------------------------------------
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:redis}
+      port: ${SPRING_REDIS_PORT:6379}
+      # Short timeouts: a dead Redis fails fast instead of hanging the request.
+      timeout: 800ms
+      connect-timeout: 800ms
+
+app:
+  security:
+    enabled: true
+  redis:
+    # Wires the Redis-backed token-revocation bean (vs the no-op one).
+    enabled: true
+
+# NOTE: the Redis health contributor is disabled in the base application.yml
+# (every profile), so a dead Redis never affects readiness or aggregate health.

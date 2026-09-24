@@ -1,0 +1,64 @@
+# ---------------------------------------------------------------------------
+# OpsNova - local verification of the `external-db` profile (Stage 4).
+# NEVER used in class; the instructor deploys with Kubernetes manifests.
+#
+#   docker compose up --build           # build + start postgres, catalog, order
+#   docker compose restart postgres     # data survives (named volume)
+#   docker compose down                 # stop (keeps the volume + data)
+#   docker compose down -v              # stop AND delete the data volume
+#
+# Both services point at ONE Postgres instance and share nothing but that
+# database: catalog owns the `books` table, order owns the `orders` table.
+# ---------------------------------------------------------------------------
+services:
+
+  postgres:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_USER: opsnova
+      POSTGRES_PASSWORD: opsnova_secret
+      POSTGRES_DB: opsnova
+    ports:
+      - "5432:5432"          # host:container - change the left side if 5432 is taken
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # <-- persistence: survives restarts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opsnova -d opsnova"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  catalog-service:
+    build: ./catalog-service
+    image: catalog-service:1.0.0
+    environment:
+      SPRING_PROFILES_ACTIVE: external-db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/opsnova
+      SPRING_DATASOURCE_USERNAME: opsnova
+      SPRING_DATASOURCE_PASSWORD: opsnova_secret
+      APP_ORDER_URL: http://localhost:8081/orders
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  order-service:
+    build: ./order-service
+    image: order-service:1.0.0
+    environment:
+      SPRING_PROFILES_ACTIVE: external-db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/opsnova
+      SPRING_DATASOURCE_USERNAME: opsnova
+      SPRING_DATASOURCE_PASSWORD: opsnova_secret
+      CATALOG_SERVICE_URL: http://catalog-service:8080
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+
+volumes:
+  pgdata:

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:style="|--accent: ${@podInfo.accent};|">
+<head th:replace="~{fragments :: head('Error')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+
+<main class="container page">
+    <div class="error-panel">
+        <div class="error-code" th:text="${status} ?: '500'">404</div>
+        <h1 class="error-title" th:text="${error} ?: 'Something went wrong'">Not Found</h1>
+        <p class="error-msg" th:if="${message}" th:text="${message}">The page could not be found.</p>
+        <a class="btn btn-primary" th:href="@{/books}">Back to catalog</a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

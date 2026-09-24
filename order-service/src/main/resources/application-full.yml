@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------------------
+# full profile
+#   - PostgreSQL (SPRING_DATASOURCE_*) + Spring Security + JWT.
+#   - NO Redis: order-service validates tokens locally with JWT_SIGNING_KEY
+#     (no default) and never calls catalog to validate.
+#   - Secrets have no hardcoded fallbacks.
+# ---------------------------------------------------------------------------
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+app:
+  security:
+    enabled: true
+  # catalog is the auth provider - point the login/logout links at it.
+  login-url: ${APP_LOGIN_URL:/login}
+  logout-url: ${APP_LOGOUT_URL:/logout}

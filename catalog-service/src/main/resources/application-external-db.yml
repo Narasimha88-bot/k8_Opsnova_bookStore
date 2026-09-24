@@ -1,0 +1,21 @@
+# ---------------------------------------------------------------------------
+# external-db profile
+#   - Real PostgreSQL via SPRING_DATASOURCE_* env vars, with NO hardcoded
+#     defaults. If the vars are unset the placeholders fail to resolve and the
+#     app does not start; if Postgres is unreachable, startup fails at the first
+#     connection. Both failures are INTENTIONAL - they drive the initContainer
+#     lesson (wait for the DB before the app pod starts).
+#   - No Redis. Security disabled.
+# ---------------------------------------------------------------------------
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      # 'update' is acceptable here (no migration tool). Schema auto-created.
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:style="|--accent: ${@podInfo.accent};|">
+<head th:replace="~{fragments :: head('Tools')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+
+<main class="container page">
+    <div class="page-head">
+        <div>
+            <h1 class="page-title">Tools</h1>
+            <p class="page-sub">Browse the OpsNova DevOps toolchain — one image, every stage.</p>
+        </div>
+        <div class="search">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input type="search" id="bookSearch" placeholder="Search tools…"
+                   aria-label="Search tools" autocomplete="off">
+        </div>
+    </div>
+
+    <section class="book-grid" id="bookGrid">
+        <article class="book-card" th:each="book : ${books}"
+                 th:attr="data-search=${#strings.toLowerCase(book.title + ' ' + book.author)}">
+            <a class="book-card-link" th:href="@{/books/{id}(id=${book.id})}">
+                <div class="cover">
+                    <img class="cover-logo" th:src="|/img/${book.logo}.svg|" th:alt="${book.title}">
+                </div>
+                <div class="book-body">
+                    <h3 class="book-title" th:text="${book.title}">Docker</h3>
+                    <p class="book-author" th:text="${book.author}">Container Runtime</p>
+                    <div class="book-meta">
+                        <span class="price" th:text="|₹${#numbers.formatInteger(book.price,1,'COMMA')}|">₹0</span>
+                        <span class="stock"
+                              th:classappend="${book.stockCount == 0 ? 'out' : (book.stockCount le 5 ? 'low' : 'in')}"
+                              th:text="${book.stockCount == 0 ? 'Out of stock' : book.stockCount + ' in stock'}">In stock</span>
+                    </div>
+                </div>
+            </a>
+        </article>
+    </section>
+
+    <p class="empty" id="noResults" hidden>No tools match your search.</p>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+<script th:src="@{/js/app.js}" defer></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------------
+# standalone profile
+#   - H2 in-memory database, auto-seeded with ~10 books at startup
+#   - No Redis, no security (all endpoints open)
+#   - Sane hardcoded defaults; starts with zero environment variables
+# ---------------------------------------------------------------------------
+spring:
+  datasource:
+    url: jdbc:h2:mem:catalog;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect

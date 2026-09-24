@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:style="|--accent: ${@podInfo.accent};|">
+<head th:replace="~{fragments :: head('Sign in')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+
+<main class="container page">
+    <div class="login-card">
+        <h1 class="login-title">Sign in</h1>
+        <p class="login-sub">Sign in to place orders and manage the catalog.</p>
+
+        <div th:if="${error}" class="flash flash-error" th:text="${error}">error</div>
+
+        <form method="post" th:action="@{/login}" class="login-form">
+            <label>
+                <span>Username</span>
+                <input type="text" name="username" autocomplete="username" required autofocus>
+            </label>
+            <label>
+                <span>Password</span>
+                <input type="password" name="password" autocomplete="current-password" required>
+            </label>
+            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        </form>
+
+        <p class="login-hint">Demo users: <code>admin / admin123</code> · <code>user / user123</code></p>
+    </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

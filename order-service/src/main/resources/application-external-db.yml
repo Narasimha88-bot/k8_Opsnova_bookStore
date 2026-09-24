@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------------
+# external-db profile
+#   - Real PostgreSQL via SPRING_DATASOURCE_* env vars, with NO hardcoded
+#     defaults. Unset vars -> unresolved placeholder -> app does not start;
+#     unreachable Postgres -> startup fails. Both are INTENTIONAL (initContainer
+#     lesson). order-service still finds catalog via catalog.service.url.
+#   - No Redis. Security disabled.
+# ---------------------------------------------------------------------------
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false

@@ -1,0 +1,60 @@
+# ---------------------------------------------------------------------------
+# Base configuration - shared by every profile.
+#
+# The active profile defaults to `standalone` so the image starts with ZERO
+# environment variables. Kubernetes overrides it with SPRING_PROFILES_ACTIVE
+# (an env var always wins over this file): same JAR, same image, same tag -
+# only the profile changes.
+# ---------------------------------------------------------------------------
+spring:
+  application:
+    name: catalog-service
+  profiles:
+    active: standalone
+
+app:
+  # Filled in at build time from the Maven project version (<version> in pom.xml).
+  # spring-boot-starter-parent enables @...@ resource filtering for application.yml.
+  version: "@project.version@"
+  # Browser-facing URL of the order flow. Default is ingress-relative (/orders);
+  # locally it is set to the order-service URL via APP_ORDER_URL.
+  order-url: /orders
+  ui:
+    # OpsNova "Nova" brand accent (violet), exposed to templates as a CSS custom
+    # property. The 2.0.0 image overrides just this (and the version) for the
+    # rolling-update demo - students see the accent flip while pods roll.
+    accent: "#7c3aed"
+
+server:
+  port: 8080
+  error:
+    # Show the error message on the branded HTML error page (teaching app, no
+    # sensitive data). The REST API uses its own JSON error handler regardless.
+    include-message: always
+
+management:
+  health:
+    # Redis is optional (only present in `full`) and ephemeral. It must never
+    # gate readiness OR make the aggregate /actuator/health look DOWN when it is
+    # absent, so the Redis health contributor is disabled in every profile.
+    redis:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      group:
+        # Liveness = "is the process alive". Must NOT check Postgres or Redis,
+        # so a database outage never triggers a container restart.
+        liveness:
+          include: livenessState
+        # Readiness = "ready for traffic". Checks the datasource (db). In
+        # standalone that is H2, so it is always UP; against Postgres it will
+        # report DOWN when the database is unreachable.
+        readiness:
+          include: readinessState,db

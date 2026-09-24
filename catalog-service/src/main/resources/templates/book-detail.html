@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:style="|--accent: ${@podInfo.accent};|">
+<head th:replace="~{fragments :: head(${book.title})}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+
+<main class="container page">
+    <a class="back-link" th:href="@{/books}">← Back to tools</a>
+
+    <div class="detail">
+        <div class="detail-cover">
+            <img class="cover-logo" th:src="|/img/${book.logo}.svg|" th:alt="${book.title}">
+        </div>
+
+        <div class="detail-info">
+            <h1 class="detail-title" th:text="${book.title}">Docker</h1>
+            <p class="detail-author" th:text="${book.author}">Container Runtime</p>
+            <div class="detail-price" th:text="|₹${#numbers.formatInteger(book.price,1,'COMMA')}|">₹0</div>
+
+            <dl class="detail-specs">
+                <div>
+                    <dt>Licence</dt>
+                    <dd th:text="${book.isbn}">—</dd>
+                </div>
+                <div>
+                    <dt>Availability</dt>
+                    <dd>
+                        <span class="stock"
+                              th:classappend="${book.stockCount == 0 ? 'out' : (book.stockCount le 5 ? 'low' : 'in')}"
+                              th:text="${book.stockCount == 0 ? 'Out of stock' : book.stockCount + ' in stock'}">In stock</span>
+                    </dd>
+                </div>
+            </dl>
+
+            <div class="order-box">
+                <a th:if="${book.stockCount > 0}" class="btn btn-primary btn-block"
+                   th:href="|${orderUrl}?bookId=${book.id}|">
+                    Place order →
+                </a>
+                <button th:unless="${book.stockCount > 0}" class="btn btn-primary btn-block" disabled>
+                    Out of stock
+                </button>
+                <p class="order-note">
+                    Placing an order takes you to <code>order-service</code>, which verifies stock across the network.
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>
