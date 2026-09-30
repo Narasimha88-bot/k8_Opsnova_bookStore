@@ -1,0 +1,15 @@
+pipeline {
+    agent { label 'slave_node' }
+    stages {
+        stage ("checkout") {
+            steps {
+                git branch: 'main',url : 'https://github.com/Narasimha88-bot/k8_Opsnova_bookStore.git'
+            }
+        }
+        stage ('build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+    }
+}
