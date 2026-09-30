@@ -27,14 +27,14 @@ pipeline {
         {
             steps {
                 dir ('catalog-service') {
-                    sh 'docker tag catalog-service:latest  183004894778.dkr.ecr.us-east-1.amazonaws.com/nellore/sampe-repo:catalina:latest'
+                    sh 'docker tag catalog-service:latest  183004894778.dkr.ecr.us-east-1.amazonaws.com/nellore/sampe-repo:latest'
                 }
             }
         }
         stage ('push the image') {
             steps {
                 dir ('catalog-service') {
-                    sh 'docker push  183004894778.dkr.ecr.us-east-1.amazonaws.com/nellore/sampe-repo:catalina:latest'
+                    sh 'docker push  183004894778.dkr.ecr.us-east-1.amazonaws.com/nellore/sampe-repo:latest'
                 }
             }
         }
