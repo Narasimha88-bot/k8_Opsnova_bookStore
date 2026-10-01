@@ -1,19 +1,9 @@
 pipeline {
     agent { label 'slave_node' }
-    tools {
-        maven 'maven3.9'
-    }
     stages {
         stage ("checkout") {
             steps {
                 git branch: 'main',url : 'https://github.com/Narasimha88-bot/k8_Opsnova_bookStore.git'
-            }
-        }
-        stage ('build') {
-            steps {
-                dir('catalog-service') {
-                    sh 'mvn clean package -DskipTests'
-                }
             }
         }
         stage ('build the image') {
