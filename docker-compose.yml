@@ -2,7 +2,7 @@
 # 
 # OpsNova - local verification of the `external-db` profile (Stage 4).
 # NEVER used in class; the instructor deploys with Kubernetes manifests.
-#Testing the PR from the dev branch to main
+#
 #   docker compose up --build           # build + start postgres, catalog, order
 #   docker compose restart postgres     # data survives (named volume)
 #   docker compose down                 # stop (keeps the volume + data)
